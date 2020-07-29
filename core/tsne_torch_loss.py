@@ -62,6 +62,9 @@ def compute_joint_probabilities(X, perplexity=30, metric='euclidean', method='ex
         t0 = time()
         distances_nn, neighbors_nn = knn.kneighbors(
             None, n_neighbors=k)
+        #https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/tests/test_t_sne.py 170行
+        distance_graph = knn.kneighbors_graph(n_neighbors=k,
+                                         mode='distance')
         duration = time() - t0
         if verbose:
             print("[t-SNE] Computed neighbors for {} samples in {:.3f}s..."
@@ -79,8 +82,10 @@ def compute_joint_probabilities(X, perplexity=30, metric='euclidean', method='ex
             distances_nn **= 2
 
         # compute the joint probability distribution for the input space
-        P = _joint_probabilities_nn(distances_nn, neighbors_nn,
-                                    perplexity, verbose)
+        # P = _joint_probabilities_nn(distances_nn, neighbors_nn,
+                                    # perplexity, verbose)
+        P = _joint_probabilities_nn(distance_graph, perplexity,
+                                     verbose)
         P = P.toarray()
 
     # Convert to torch tensor
